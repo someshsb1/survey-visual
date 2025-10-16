@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Survey Summary</title>
+    <style>
+        :root {
+            --ink: #222;
+            --muted: #6b7280;
+            --bg: #fafafa;
+            --card: #fff;
+            --border: #e5e7eb;
+            --accent: #278BB6;
+            --good: #16a34a;
+            --warn: #d97706;
+            --bad: #b91c1c;
+            --radius: 12px;
+            --shadow: 0 2px 12px rgba(0, 0, 0, .06);
+            --maxw: 1100px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font: 14px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            color: var(--ink);
+            background: var(--bg);
+        }
+
+        /* Shell */
+        .shell {
+            max-width: var(--maxw);
+            margin: 0 auto;
+            padding: 12px 16px 48px;
+        }
+
+        /* Sticky toolbar/header */
+        .toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 12px 14px;
+            margin: 12px 0 16px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .t-title {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .t-sub {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .t-meta {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            appearance: none;
+            border: 1px solid var(--border);
+            background: var(--card);
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            border-color: #d1d5db;
+        }
+
+        /* Panels */
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 14px;
+        }
+
+        .section {
+            margin: 18px 0;
+            display: grid;
+            gap: 12px;
+        }
+
+        .section h2 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .section .sub {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        /* KPI row */
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .kpi {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .kpi .label {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .kpi .value {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .kpi .note {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        /* Highlights list (flat, vertical cards) */
+        .highlights {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .highlight {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .highlight b {
+            color: var(--ink);
+        }
+
+        /* Bar list (for distributions) */
+        .bars {
+            display: grid;
+            gap: 10px;
+        }
+
+        .bar {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .bar .track {
+            background: #f3f4f6;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            overflow: hidden;
+            height: 12px;
+        }
+
+        .bar .fill {
+            height: 100%;
+            background: var(--accent);
+        }
+
+        .bar .meta {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        /* Quotes (flat card stack) */
+        .quotes {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        blockquote {
+            margin: 0;
+            padding: 12px;
+            border: 1px dashed var(--border);
+            border-radius: 10px;
+            background: #fcfcfc;
+        }
+
+        blockquote footer {
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        /* Tags / themes */
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            border: 1px solid var(--border);
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #f9fafb;
+            font-size: 12px;
+        }
+
+        /* Two-column layout for desktop; stacks on mobile */
+        .grid-2 {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: 1.3fr .7fr;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .chart-card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .chart-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            cursor: zoom-in;
+        }
+
+        /* Lightbox */
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 24px;
+        }
+
+        .lightbox.open {
+            display: flex;
+        }
+
+        .lightbox-inner {
+            position: relative;
+            max-width: 96vw;
+            max-height: 92vh;
+            background: #111;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, .3);
+            overflow: hidden;
+        }
+
+        .lightbox img {
+            display: block;
+            max-width: 96vw;
+            max-height: 86vh;
+            margin: 0 auto;
+        }
+
+        .lb-caption {
+            color: #e5e7eb;
+            font-size: 13px;
+            padding: 8px 12px;
+            border-top: 1px solid rgba(255, 255, 255, .1);
+        }
+
+        .lb-btn {
+            position: absolute;
+            top: 8px;
+            background: rgba(0, 0, 0, .5);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, .2);
+            border-radius: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+        }
+
+        .lb-close {
+            right: 8px;
+        }
+
+        .lb-prev,
+        .lb-next {
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 10px 12px;
+            font-size: 18px;
+        }
+
+        .lb-prev {
+            left: 8px;
+        }
+
+        .lb-next {
+            right: 8px;
+        }
+
+        /* Expand charts to full width */
+        .shell.charts-wide .grid-2 {
+            grid-template-columns: 1fr;
+        }
+
+        .shell.charts-wide #chartsPanel {
+            order: -1;
+        }
+
+        /* Slightly larger right column charts by default on wide screens */
+        @media (min-width: 1024px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Optional: two-per-row when expanded on wide screens */
+        .shell.charts-wide .charts-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        @media (max-width: 840px) {
+            .kpis {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .shell.charts-wide .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Print tweaks */
+        @media print {
+            .toolbar {
+                position: static;
+                box-shadow: none;
+            }
+
+            .btn,
+            .links {
+                display: none !important;
+            }
+
+            body {
+                background: #fff;
+            }
+
+            .panel {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="shell">
+        <!-- Sticky header: title, subtitle, meta -->
+        <div class="toolbar">
+            <div>
+                <div class="t-title" id="title">Survey Summary</div>
+                <div class="t-sub" id="subtitle">Key findings, highlights, and representative feedback.</div>
+                <div class="t-meta" id="meta">Last updated: —</div>
+            </div>
+            <div class="links">
+                <button class="btn" id="printBtn">Print / Save PDF</button>
+                <button class="btn" id="expandChartsBtn">Expand charts</button>
+                <a class="btn" id="rawLink" href="#" target="_blank" rel="noopener">View raw data</a>
+            </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="section">
+            <div class="panel">
+                <h2>Overview</h2>
+                <div class="sub">Snapshot of participation.</div>
+                <div class="kpis" id="kpiRow">
+                    <!-- populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content: left narrative + right sidebar -->
+        <div class="section grid-2">
+            <!-- Left column: highlights, distributions, quotes, themes, table -->
+            <div class="stackL">
+                <div class="panel">
+                    <h2>Key Highlights</h2>
+                    <div class="highlights" id="highlights"></div>
+                </div>
+
+                <div class="panel" id="distContainer">
+                    <h2>Response Breakdown</h2>
+                    <div class="bars" id="bars"></div>
+                </div>
+
+                <div class="panel">
+                    <h2>QA/QC feedback loop</h2>
+                    <div class="quotes" id="quotes"></div>
+                </div>
+
+                <!-- Themes panel wired to DATA.themes -->
+                <div class="panel" id="themesPanel">
+                    <h2>Tags</h2>
+                    <div class="tags" id="tags"></div>
+                </div>
+
+                <!-- Optional details table wired to DATA.table -->
+                <div class="panel" id="tablePanel" style="display:none;">
+                    <h2>Details</h2>
+                    <table id="detailTable"></table>
+                </div>
+            </div>
+
+            <!-- Right column: charts -->
+            <aside class="stackR" id="chartsPanel">
+                <div class="panel">
+                    <h2>Charts</h2>
+                    <div class="sub">Click any chart to view full screen.</div>
+
+                    <div class="charts-grid" id="charts">
+                        <figure class="chart-card">
+                            <img src="assets/charts/1.png" alt="Chart 1" loading="lazy" decoding="async"
+                                data-caption="Chart 1">
+                        </figure>
+                        <figure class="chart-card">
+                            <img src="assets/charts/2.png" alt="Chart 2" loading="lazy" decoding="async"
+                                data-caption="Chart 2">
+                        </figure>
+                        <figure class="chart-card">
+                            <img src="assets/charts/3.png" alt="Chart 3" loading="lazy" decoding="async"
+                                data-caption="Chart 3">
+                        </figure>
+                        <figure class="chart-card">
+                            <img src="assets/charts/4.png" alt="Chart 4" loading="lazy" decoding="async"
+                                data-caption="Chart 4">
+                        </figure>
+                        <figure class="chart-card">
+                            <img src="assets/charts/5.png" alt="Chart 5" loading="lazy" decoding="async"
+                                data-caption="Chart 5">
+                        </figure>
+                        <figure class="chart-card">
+                            <img src="assets/charts/6.png" alt="Chart 6" loading="lazy" decoding="async"
+                                data-caption="Chart 6">
+                        </figure>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" aria-hidden="true">
+        <div class="lightbox-inner">
+            <button class="lb-btn lb-close" id="lbClose" aria-label="Close">✕</button>
+            <button class="lb-btn lb-prev" id="lbPrev" aria-label="Previous">‹</button>
+            <button class="lb-btn lb-next" id="lbNext" aria-label="Next">›</button>
+            <img id="lbImg" alt="">
+            <div class="lb-caption" id="lbCaption"></div>
+        </div>
+    </div>
+
+    <script>
+        // === Simple data-driven summary page ===
+        const DATA = {
+            "title": "Survey Summary",
+            "subtitle": "Light Microscopy workflows, QA/QC practices, and formats",
+            "last_updated": "2025-10-16",
+            "raw_data_url": "https://docs.google.com/spreadsheets/d/1ECoanFcd1pVAS8UiSSvwzpgIaY8vZPp7YhZ4ldCJ6B0/edit?usp=sharing",
+            "kpis": [
+                { "label": "Responses", "value": 6, "note": "" },
+                { "label": "QA/QC Performed", "value": "83%", "note": "share reporting Yes" },
+                { "label": "Primary: LM", "value": "83%", "note": "LM users" },
+                { "label": "Automated+Manual", "value": "100%", "note": "use automation" }
+            ],
+            "highlights": [
+                "<b>83%</b> of respondents report performing QA/QC on reconstructions.",
+                "The most common workflow is <b>Manual, Automated followed by Manual proofreading</b>.",
+                "Primary data type is mostly <b>Light Microscopy (LM)</b>.",
+                "Input formats include a mix of Zarr/Precomputed, SWC, HDF5, and CSV/graph exports."
+            ],
+            "distributions": [
+                {
+                    "title": "Primary Data Type", "items": [
+                        { "label": "Light Microscopy (LM)", "value": 4 },
+                        { "label": "Light Microscopy (LM), Electron Microscopy (EM)", "value": 1 },
+                        { "label": "Electron Microscopy (EM)", "value": 1 }
+                    ]
+                },
+                {
+                    "title": "Reconstruction Process", "items": [
+                        { "label": "Manual, Automated followed by Manual proofreading", "value": 3 },
+                        { "label": "Automated followed by Manual proofreading", "value": 2 },
+                        { "label": "Fully Automated, Automated followed by Manual proofreading", "value": 1 }
+                    ]
+                },
+                {
+                    "title": "QA/QC Performed", "items": [
+                        { "label": "Yes", "value": 5 },
+                        { "label": "No", "value": 1 }
+                    ]
+                }
+            ],
+            "quotes": [
+                { "text": "If QC fails, we will go back to refine the manual reconstruction." },
+                { "text": "To improve automated segmentation" },
+                { "text": "We can send our report, but we use QA/QC metrics (e.g., segmentation precision and recall), performance metrics (e.g., data throughput), and comparative metrics (e.g., NRI)…" }
+            ],
+            "themes": [
+                { "tag": "QA/QC", "count": 5 },
+                { "tag": "Automation", "count": 6 },
+                { "tag": "Manual Proofreading", "count": 5 },
+                { "tag": "Zarr/Precomputed", "count": 2 },
+                { "tag": "SWC/Meshes", "count": 2 },
+                { "tag": "CSV/Graphs", "count": 2 },
+                { "tag": "HDF5", "count": 1 }
+            ],
+            "table": { "headers": ["Field", "Value"], "rows": [["Responses", "6"], ["QA/QC Yes", "5"]] }
+        };
+
+        // === Render helpers ===
+        const $ = (sel) => document.querySelector(sel);
+        function setText(id, text) { const el = document.getElementById(id); if (el) el.textContent = text; }
+
+        function render() {
+            // Header
+            setText('title', DATA.title);
+            setText('subtitle', DATA.subtitle);
+            $('#meta').textContent = `Last updated: ${DATA.last_updated}`;
+            const rawLink = document.getElementById('rawLink');
+            if (DATA.raw_data_url && DATA.raw_data_url !== '#') rawLink.href = DATA.raw_data_url; else rawLink.style.display = 'none';
+
+            // KPIs
+            const kpiRow = document.getElementById('kpiRow');
+            kpiRow.innerHTML = '';
+            (DATA.kpis || []).forEach(k => {
+                const div = document.createElement('div');
+                div.className = 'kpi';
+                div.innerHTML = `<div class="label">${k.label}</div><div class="value">${k.value}</div>${k.note ? `<div class="note">${k.note}</div>` : ''}`;
+                kpiRow.appendChild(div);
+            });
+
+            // Highlights
+            const hl = document.getElementById('highlights');
+            hl.innerHTML = '';
+            (DATA.highlights || []).forEach(item => {
+                const li = document.createElement('div');
+                li.className = 'highlight';
+                li.innerHTML = item; // item may include <b>
+                hl.appendChild(li);
+            });
+
+            // Distributions as bar lists
+            const barsWrap = document.getElementById('bars');
+            barsWrap.innerHTML = '';
+            (DATA.distributions || []).forEach(group => {
+                const title = document.createElement('div');
+                title.style.fontWeight = '600';
+                title.style.margin = '8px 0 2px';
+                title.textContent = group.title;
+                barsWrap.appendChild(title);
+
+                const total = group.items.reduce((a, b) => a + (Number(b.value) || 0), 0) || 1;
+                group.items.forEach(it => {
+                    const pct = Math.round((Number(it.value) || 0) * 100 / total);
+                    const row = document.createElement('div');
+                    row.className = 'bar';
+                    row.innerHTML = `
+            <div class="track" aria-label="${it.label}"><div class="fill" style="width:${pct}%"></div></div>
+            <div class="meta">${it.label} — ${pct}% (${it.value})</div>
+          `;
+                    barsWrap.appendChild(row);
+                });
+            });
+
+            // Quotes
+            const q = document.getElementById('quotes');
+            q.innerHTML = '';
+            (DATA.quotes || []).forEach(({ text, source }) => {
+                const bq = document.createElement('blockquote');
+                bq.innerHTML = `${text}${source ? `<footer>— ${source}</footer>` : ''}`;
+                q.appendChild(bq);
+            });
+
+            // Themes (safe if panel exists)
+            const tg = document.getElementById('tags');
+            if (tg) {
+                tg.innerHTML = '';
+                (DATA.themes || []).forEach(({ tag, count }) => {
+                    const el = document.createElement('span');
+                    el.className = 'tag';
+                    el.textContent = `${tag} (${count})`;
+                    tg.appendChild(el);
+                });
+            }
+
+            // Optional table
+            const tablePanel = document.getElementById('tablePanel');
+            const tbl = document.getElementById('detailTable');
+            if (tablePanel && tbl && DATA.table && DATA.table.headers && DATA.table.rows && DATA.table.rows.length) {
+                tablePanel.style.display = '';
+                const thead = `<thead><tr>${DATA.table.headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>`;
+                const tbody = `<tbody>${DATA.table.rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>`;
+                tbl.innerHTML = thead + tbody;
+            } else if (tablePanel) {
+                tablePanel.style.display = 'none';
+            }
+        }
+
+        document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+        // --- Lightbox & expand logic ---
+        function initChartsUX() {
+            const charts = Array.from(document.querySelectorAll('#charts img'));
+            if (!charts.length) return;
+
+            const lb = document.getElementById('lightbox');
+            const lbImg = document.getElementById('lbImg');
+            const lbCaption = document.getElementById('lbCaption');
+            const lbClose = document.getElementById('lbClose');
+            const lbPrev = document.getElementById('lbPrev');
+            const lbNext = document.getElementById('lbNext');
+            let lbIndex = 0;
+
+            function openLB(i) {
+                lbIndex = i;
+                const img = charts[lbIndex];
+                lbImg.src = img.currentSrc || img.src;
+                lbImg.alt = img.alt || '';
+                lbCaption.textContent = img.dataset.caption || img.alt || '';
+                lb.classList.add('open');
+                lb.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+            }
+            function closeLB() {
+                lb.classList.remove('open');
+                lb.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+                lbImg.src = '';
+            }
+            function navLB(delta) {
+                lbIndex = (lbIndex + delta + charts.length) % charts.length;
+                openLB(lbIndex);
+            }
+
+            charts.forEach((img, i) => img.addEventListener('click', () => openLB(i)));
+            lbClose.addEventListener('click', closeLB);
+            lbPrev.addEventListener('click', () => navLB(-1));
+            lbNext.addEventListener('click', () => navLB(1));
+            lb.addEventListener('click', (e) => { if (e.target === lb) closeLB(); });
+            document.addEventListener('keydown', (e) => {
+                if (!lb.classList.contains('open')) return;
+                if (e.key === 'Escape') closeLB();
+                if (e.key === 'ArrowLeft') navLB(-1);
+                if (e.key === 'ArrowRight') navLB(1);
+            });
+
+            // Expand charts to full width
+            const expandBtn = document.getElementById('expandChartsBtn');
+            const shellEl = document.querySelector('.shell');
+            if (expandBtn && shellEl) {
+                let expanded = false;
+                expandBtn.addEventListener('click', () => {
+                    expanded = !expanded;
+                    shellEl.classList.toggle('charts-wide', expanded);
+                    expandBtn.textContent = expanded ? 'Collapse charts' : 'Expand charts';
+                });
+            }
+        }
+
+        render();
+        initChartsUX();
+    </script>
+</body>
+
+</html>
